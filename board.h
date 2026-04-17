@@ -18,6 +18,7 @@ namespace chess
         public:
         board();
         ~board();
+
         // miscellaneous functions
         void print_board();
         void get_turncolour();
@@ -25,10 +26,12 @@ namespace chess
         void start_message();
         void end_message_win(std::string& player);
         void end_message_draw();
+
         // move-related functions
         void make_move();
         void input_checker(std::string& input);
         int input_converter(char& i, int mode);
+
         // king related function
         void find_kings(piece* temp[8][8]);
         bool is_king_check(piece* temp[8][8], char& king_colour);
@@ -37,6 +40,7 @@ namespace chess
         bool can_any_move();
         bool is_checkmate();
         bool is_stalemate();
+        
         // special moves
         void pawn_promoton(int row, int col);
         bool castling(char king_colour, int fcol);
