@@ -13,6 +13,7 @@ namespace chess
         char turncolour{'W'};
         int ranks[8] = {8,7,6,5,4,3,2,1};
         char files[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        int wking_row, wking_col, bking_row, bking_col;
         piece* position[8][8]{nullptr};
 
         public:
@@ -42,7 +43,7 @@ namespace chess
         bool is_stalemate();
         
         // special moves
-        void pawn_promoton(int row, int col);
+        void pawn_promotion(int row, int col);
         bool castling(char king_colour, int fcol);
     };
 }
