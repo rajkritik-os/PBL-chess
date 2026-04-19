@@ -289,3 +289,136 @@ void board:: find_kings(piece* temp[8][8])
         }
     }
 }
+
+// checks if any enemy piece can move (attack) to king of given colour
+bool board::is_king_check(piece* temp[8][8], char& king_colour)
+{
+    find_kings(temp);
+    int king_row, king_col;
+    king_row = (king_colour == 'W') ? wking_row : bking_row;
+    king_col = (king_colour == 'W') ? wking_col : bking_col;
+    for(int i{0}; i<8; i++){
+        for(int j{0}; j<8; j++){
+            if(temp[i][j]!= nullptr) {
+                if(temp[i][j]->get_colour() != king_colour) {
+                    if(temp[i][j]->is_move_allowed(temp, i, j, king_row, king_col)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// creates a virtual board, makes a virtual move and checks if king is in check
+// in that hypothetical situation
+
+bool board::will_king_check(int irow, int icol, int frow, int fcol, char king_colour)
+{
+    piece* virtual_board[8][8];
+    for(int i{0}; i<8; i++) {
+        for(int j{0}; j<8; j++){
+            virtual_board[i][j] = position[i][j];
+        }
+    }
+    // make virtual move
+    virtual_board[frow][fcol] = virtual_board[irow][icol];
+    virtual_board[irow][icol] = nullptr;
+    if(is_king_check(virtual_board, king_colour)) {
+        return true;
+    } else {
+        return false;
+    }
+    // delete virtual board
+    for(int i{0}; i<8; i++)
+    {
+        for(int j{0}; j<8; j++)
+        {
+            delete[] virtual_board[i][j];
+        }
+    }
+}
+
+// searches all 8 squares arounf the king position and checks which move are legal
+bool board::can_king_move(char king_colour)
+{
+    int king_row, king_col;
+    king_row = (king_colour == 'W') ? wking_row : bking_row;
+    king_col = (king_colour == 'W') ? wking_col : bking_col;
+    // map to store squares around the king
+    std::map<int,std::map<int,int>> map;
+    std::map<int,std::map<int,int>>::iterator ptr1;
+    std::map<int,int>::iterator ptr2;
+    for (int n{0}; n < 8; n++) {
+        map.insert(std::make_pair(n, std::map<int, int>()));
+    }
+    // check each square around the king
+    map[0].insert(std::make_pair(king_row-1, king_col-1));
+    map[1].insert(std::make_pair(king_row-1, king_col));
+    map[2].insert(std::make_pair(king_row-1, king_col+1));
+    map[3].insert(std::make_pair(king_row, king_col-1));
+    map[4].insert(std::make_pair(king_row, king_col+1));
+    map[5].insert(std::make_pair(king_row+1, king_col-1));
+    map[6].insert(std::make_pair(king_row+1, king_col));
+    map[7].insert(std::make_pair(king_row+1, king_col+1));
+
+    int allowed_square{0};
+    for (ptr1 = map.begin(); ptr1 != map.end(); ptr1++) {
+        for (ptr2 = ptr1->second.begin(); ptr2 != ptr1->second.end(); ptr2++) {
+            if (ptr2->first >= 0 && ptr2->first < 8 && ptr2->second >= 0 && ptr2->second < 8) {
+                if (position[ptr2->first][ptr2->second]->get_colour() != king_colour) {
+                    if (!will_king_check(king_row, king_col, ptr2->first, ptr2->second, king_colour)) {
+                        allowed_square++;
+                    }
+                }
+            }
+        }
+    }
+    if (allowed_square != 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+// checks if any piece other than the king can move
+bool board::can_any_move()
+{
+    int allowed_square{0};
+    for(int i{0}; i<8; i++){
+        for(int j{0}; j<8; j++) {
+            if(position[i][j]->get_colour() == turncolour) {
+                if(position[i][j]->get_id() !='K') {
+                    for(int x{0}; x<8; x++){
+                        for(int y{0}; y<8; y++) {
+                            if(position[i][j]->is_move_allowed(position, i,j , x, y)) {
+                                allowed_square++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(allowed_square != 0) {
+        return true; 
+    } else {
+        return false;
+    }
+}
+bool board::is_checkmate()
+{
+    if(is_king_check(position, turncolour) && !can_king_move(turncolour)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+bool board::is_stalemate()
+{
+    if(!is_king_check(position, turncolour) && !can_king_move(turncolour) &&!can_any_move()) {
+        return true;
+    } else {
+        return false;
+    }
+}
