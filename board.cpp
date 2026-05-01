@@ -12,7 +12,7 @@ board::board()
     wking_row = 7;
     wking_col = 4;
     bking_row = 0;
-    bking_row = 4;
+    bking_col = 4;
 
     // allocate pawns
     for (int n = 0; n < 8; n++)
@@ -20,26 +20,27 @@ board::board()
         position[1][n] = new pawn{'B'};
         position[6][n] = new pawn{'W'};
     }
+    // Change Black pieces to row 0 (Rank 8)
+position[0][0] = new rook{'B'};
+position[0][1] = new knight{'B'};
+position[0][2] = new bishop{'B'};
+position[0][3] = new queen{'B'};
+position[0][4] = new king{'B'};
+position[0][5] = new bishop{'B'};
+position[0][6] = new knight{'B'};
+position[0][7] = new rook{'B'};
 
-    // allocate black pieces
-    position[0][0] = new rook{'B'};
-    position[0][1] = new knight{'B'};
-    position[0][2] = new bishop{'B'};
-    position[0][3] = new queen{'B'};
-    position[0][4] = new king{'B'};
-    position[0][5] = new bishop{'B'};
-    position[0][6] = new knight{'B'};
-    position[0][7] = new rook{'B'};
+// Change White pieces to row 7 (Rank 1)
+position[7][0] = new rook{'W'};
+position[7][1] = new knight{'W'};
+position[7][2] = new bishop{'W'};
+position[7][3] = new queen{'W'};
+position[7][4] = new king{'W'};
+position[7][5] = new bishop{'W'};
+position[7][6] = new knight{'W'};
+position[7][7] = new rook{'W'};
 
-    // alocate white pieces
-    position[0][0] = new rook{'W'};
-    position[0][1] = new knight{'W'};
-    position[0][2] = new bishop{'W'};
-    position[0][3] = new queen{'W'};
-    position[0][4] = new king{'W'};
-    position[0][5] = new bishop{'W'};
-    position[0][6] = new knight{'W'};
-    position[0][7] = new rook{'W'};
+
 }
 
 board::~board()
@@ -61,9 +62,11 @@ void board::print_board()
     string files_square[8];
     for (int n = 0; n < 8; n++)
     {
-        files_square[n] = " ";
-        files_square[n].push_back(files[n]);
+        files_square[n] = "  ";
         files_square[n].push_back(' ');
+        files_square[n].push_back(files[n]);
+        // files_square[n].push_back(' ');
+        
     }
     string divide_square{" ---"};
 
@@ -78,7 +81,7 @@ void board::print_board()
     // print boards square and side ranks
     for (int i = 0; i < 8; i++)
     {
-        cout << " ";
+        cout << "  ";
         for (int p = 0; p < 8; p++)
         {
             cout << divide_square;
@@ -89,7 +92,7 @@ void board::print_board()
         {
             if (position[i][j] == nullptr)
             {
-                cout << "|  ";
+                cout << "|   ";
             }
             else if (position[i][j]->get_colour() == 'W')
             {
@@ -124,14 +127,14 @@ char board::get_turncolour()
 }
 void board::alternate_turn()
 {
-    turncolour = (turncolour == 'w') ? 'B' : 'w';
+    turncolour = (turncolour == 'W') ? 'B' : 'W';
 }
 
 void board::start_message()
 {
     cout << "\n\t--- Chess Game ---\n";
     cout << "\n* Input coordinates as 'a1' to play *\n";
-    cout << "\n\t   Game Stareted!" << endl;
+    cout << "\n\t   Game Started!" << endl;
 }
 
 void board::end_message_win(string &player)
@@ -139,7 +142,7 @@ void board::end_message_win(string &player)
     cout << "\n\t.   " << player << " wins!\n"
          << endl;
 }
-void ::boardend_message_draw()
+void board::end_message_draw()
 {
     cout << "\n     It's a stalemate! Draw !\n"
          << endl;
@@ -175,7 +178,7 @@ void board::make_move()
         {
             if (position[irow][icol]->get_colour() == turncolour)
             {
-                if (position[frow][fcol]->get_colour() != turncolour) {
+            if (position[frow][fcol] == nullptr || position[frow][fcol]->get_colour() != turncolour)     {
                     if (position[irow][icol]->get_id() == 'K') {
                         if (!position[irow][icol]->has_moved() && (fcol == 2 || fcol == 6)) {
                             // try castling
@@ -277,7 +280,7 @@ void board:: find_kings(piece* temp[8][8])
 {
     for( int i{0}; i<8; i++) {
         for( int j{0}; j<8; j++) {
-            if(temp[i][j]->get_id() == 'K') {
+            if(temp[i][j] != nullptr && temp[i][j]->get_id() == 'K') {
                 if(temp[i][j]->get_colour() == 'W') {
                     wking_row = i;
                     wking_col = j;
@@ -326,18 +329,14 @@ bool board::will_king_check(int irow, int icol, int frow, int fcol, char king_co
     virtual_board[frow][fcol] = virtual_board[irow][icol];
     virtual_board[irow][icol] = nullptr;
     if(is_king_check(virtual_board, king_colour)) {
+         
         return true;
     } else {
+        
         return false;
     }
     // delete virtual board
-    for(int i{0}; i<8; i++)
-    {
-        for(int j{0}; j<8; j++)
-        {
-            delete[] virtual_board[i][j];
-        }
-    }
+    
 }
 
 // searches all 8 squares arounf the king position and checks which move are legal
@@ -367,7 +366,8 @@ bool board::can_king_move(char king_colour)
     for (ptr1 = map.begin(); ptr1 != map.end(); ptr1++) {
         for (ptr2 = ptr1->second.begin(); ptr2 != ptr1->second.end(); ptr2++) {
             if (ptr2->first >= 0 && ptr2->first < 8 && ptr2->second >= 0 && ptr2->second < 8) {
-                if (position[ptr2->first][ptr2->second]->get_colour() != king_colour) {
+                if(position[ptr2->first][ptr2->second] == nullptr || 
+    position[ptr2->first][ptr2->second]->get_colour() != king_colour) {
                     if (!will_king_check(king_row, king_col, ptr2->first, ptr2->second, king_colour)) {
                         allowed_square++;
                     }
@@ -387,7 +387,7 @@ bool board::can_any_move()
     int allowed_square{0};
     for(int i{0}; i<8; i++){
         for(int j{0}; j<8; j++) {
-            if(position[i][j]->get_colour() == turncolour) {
+            if(position[i][j] != nullptr && position[i][j]->get_colour() == turncolour) {
                 if(position[i][j]->get_id() !='K') {
                     for(int x{0}; x<8; x++){
                         for(int y{0}; y<8; y++) {
@@ -451,7 +451,7 @@ bool board::castling(char king_colour, int fcol)
 {
     int king_row, king_col;
     king_row = (king_colour == 'W') ? wking_row : bking_row;
-    king_col = (king_colour == 'W') ? wking_row : bking_col;
+    king_col = (king_colour == 'W') ? wking_col : bking_col;
 
     int ok_squares{0};
     if(fcol == 2) {

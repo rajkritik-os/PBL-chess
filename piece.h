@@ -10,6 +10,7 @@ namespace chess
         bool status{false}; // if piece has moved or not
     public:
         piece(char c, char i): colour{c}, id{i} {};
+        virtual ~piece(){};
         char get_id();
         char get_colour();
         bool has_moved();

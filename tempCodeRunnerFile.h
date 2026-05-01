@@ -1,1 +1,0 @@
-bool is_move_allowed(piece* temp[8][8], int irow, int icol, int frow, int fcol);

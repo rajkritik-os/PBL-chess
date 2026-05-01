@@ -10,7 +10,7 @@ namespace chess
     class board
     {
         private:
-        char turncolour{'W'};
+        char turncolour{'B'};
         int ranks[8] = {8,7,6,5,4,3,2,1};
         char files[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         int wking_row, wking_col, bking_row, bking_col;
