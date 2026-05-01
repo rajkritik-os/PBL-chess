@@ -49,7 +49,7 @@ board::~board()
     {
         for (int j = 0; j < 8; j++)
         {
-            delete[] position[i][j];
+            delete position[i][j];
         }
     }
 }
@@ -191,6 +191,9 @@ void board::make_move()
                     if (position[irow][icol]->is_move_allowed(position, irow, icol, frow, fcol)) {
                         if (!will_king_check(irow, icol, frow, fcol, turncolour)) {
                             // move piece
+                            if (position[frow][fcol] != nullptr) {
+                                delete position[frow][fcol]; 
+                            }
                             position[frow][fcol] = position[irow][icol];
                             position[irow][icol] = nullptr;
                             if (position[frow][fcol]->get_id() == 'P') {
@@ -293,6 +296,7 @@ void board:: find_kings(piece* temp[8][8])
     }
 }
 
+
 // checks if any enemy piece can move (attack) to king of given colour
 bool board::is_king_check(piece* temp[8][8], char& king_colour)
 {
@@ -305,6 +309,7 @@ bool board::is_king_check(piece* temp[8][8], char& king_colour)
             if(temp[i][j]!= nullptr) {
                 if(temp[i][j]->get_colour() != king_colour) {
                     if(temp[i][j]->is_move_allowed(temp, i, j, king_row, king_col)) {
+                        cout<<" King is checked. "<<endl;
                         return true;
                     }
                 }
@@ -384,15 +389,16 @@ bool board::can_king_move(char king_colour)
 // checks if any piece other than the king can move
 bool board::can_any_move()
 {
-    int allowed_square{0};
     for(int i{0}; i<8; i++){
         for(int j{0}; j<8; j++) {
-            if(position[i][j] != nullptr && position[i][j]->get_colour() == turncolour) {
-                if(position[i][j]->get_id() !='K') {
-                    for(int x{0}; x<8; x++){
-                        for(int y{0}; y<8; y++) {
-                            if(position[i][j]->is_move_allowed(position, i,j , x, y)) {
-                                allowed_square++;
+            if(position[i][j] != nullptr && position[i][j]->get_colour() == turncolour && position[i][j]->get_id() != 'K') {
+                for(int x{0}; x<8; x++){
+                    for(int y{0}; y<8; y++) {
+                        if (position[x][y] == nullptr || position[x][y]->get_colour() != turncolour) {
+                            if(position[i][j]->is_move_allowed(position, i, j, x, y)) {
+                                if (!will_king_check(i, j, x, y, turncolour)) {
+                                    return true; 
+                                }
                             }
                         }
                     }
@@ -400,20 +406,17 @@ bool board::can_any_move()
             }
         }
     }
-    if(allowed_square != 0) {
-        return true; 
-    } else {
-        return false;
-    }
+    return false; // No pieces can make a legal move
 }
 bool board::is_checkmate()
 {
-    if(is_king_check(position, turncolour) && !can_king_move(turncolour)) {
+    if(is_king_check(position, turncolour) && !can_king_move(turncolour) && !can_any_move()) {
         return true;
     } else {
         return false;
     }
 }
+
 bool board::is_stalemate()
 {
     if(!is_king_check(position, turncolour) && !can_king_move(turncolour) &&!can_any_move()) {
@@ -428,6 +431,11 @@ void board::pawn_promotion(int row, int col)
     string input;
     cout<<"\nPlease choose a piece to prmte the pawn to (R, N, B or Q): ";
     while(cin>>input) {
+        delete position[row][col]; 
+
+        if(input == "Q") {
+            position[row][col] = new queen(turncolour);
+            break;}
         if(input == "Q") {
             position[row][col] = new queen(turncolour);
             break;
@@ -449,6 +457,9 @@ void board::pawn_promotion(int row, int col)
 
 bool board::castling(char king_colour, int fcol)
 {
+    if (is_king_check(position, king_colour)) {
+        return false; 
+    }
     int king_row, king_col;
     king_row = (king_colour == 'W') ? wking_row : bking_row;
     king_col = (king_colour == 'W') ? wking_col : bking_col;
@@ -494,4 +505,3 @@ bool board::castling(char king_colour, int fcol)
         return false;
     }
 }
-
