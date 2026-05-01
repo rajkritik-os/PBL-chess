@@ -118,9 +118,9 @@ void board::print_board()
     cout << "  " << endl;
 }
 
-void board::get_turncolour()
+char board::get_turncolour()
 {
-    turncolour;
+    return turncolour;
 }
 void board::alternate_turn()
 {
@@ -422,3 +422,76 @@ bool board::is_stalemate()
         return false;
     }
 }
+
+void board::pawn_promotion(int row, int col)
+{
+    string input;
+    cout<<"\nPlease choose a piece to prmte the pawn to (R, N, B or Q): ";
+    while(cin>>input) {
+        if(input == "Q") {
+            position[row][col] = new queen(turncolour);
+            break;
+        } else if(input == "N") {
+            position[row][col] = new knight{turncolour};
+            break;
+        } else if(input == "B") {
+            position[row][col] = new bishop{turncolour};
+            break;
+        } else if(input == "R") {
+            position[row][col] = new rook{turncolour};
+            break;
+        } else {
+            cerr<<"\n Invalid input : please input either R, B, N or Q";
+        }
+    }
+    cout<<"\n";
+}
+
+bool board::castling(char king_colour, int fcol)
+{
+    int king_row, king_col;
+    king_row = (king_colour == 'W') ? wking_row : bking_row;
+    king_col = (king_colour == 'W') ? wking_row : bking_col;
+
+    int ok_squares{0};
+    if(fcol == 2) {
+        if(position[king_row][0]->get_id()== 'R' && !position[king_row][0]->has_moved()) {
+            for(int n{0}; n<3; n++) {
+                if(position[king_row][king_col-(n+1)] == nullptr && !will_king_check(king_row, king_col, king_row, king_col-n, king_colour)) {
+                    ok_squares++;
+                }
+            }
+        }
+    }
+    else {
+        if(position[king_row][7]->get_id() == 'R' && !position[king_row][7]->has_moved()) {
+            for(int n{0}; n<3; n++) {
+                if(n>0) {
+                    if(position[king_row][king_col+n] == nullptr && 
+                        !will_king_check(king_row, king_col, king_row, king_col+n, king_colour)) {
+                        ok_squares++;
+                    }
+                } else {
+                    if(!will_king_check(king_row, king_col, king_row, king_col+n, king_colour)) {
+                        ok_squares++;
+                    }
+                }
+            }
+        }
+    }
+    if (ok_squares == 3) {  
+        position[king_row][fcol] = position[king_row][king_col];
+        position[king_row][king_col] = nullptr;
+        if (fcol == 2) {
+            position[king_row][fcol+1] = position[king_row][0];
+            position[king_row][0] = nullptr;
+        } else {
+            position[king_row][fcol-1] = position[king_row][7];
+            position[king_row][7] = nullptr;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+

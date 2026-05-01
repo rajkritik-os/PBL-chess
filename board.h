@@ -22,7 +22,7 @@ namespace chess
 
         // miscellaneous functions
         void print_board();
-        void get_turncolour();
+        char get_turncolour();
         void alternate_turn();
         void start_message();
         void end_message_win(std::string& player);
