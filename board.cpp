@@ -21,26 +21,24 @@ board::board()
         position[6][n] = new pawn{'W'};
     }
     // Change Black pieces to row 0 (Rank 8)
-position[0][0] = new rook{'B'};
-position[0][1] = new knight{'B'};
-position[0][2] = new bishop{'B'};
-position[0][3] = new queen{'B'};
-position[0][4] = new king{'B'};
-position[0][5] = new bishop{'B'};
-position[0][6] = new knight{'B'};
-position[0][7] = new rook{'B'};
+    position[0][0] = new rook{'B'};
+    position[0][1] = new knight{'B'};
+    position[0][2] = new bishop{'B'};
+    position[0][3] = new queen{'B'};
+    position[0][4] = new king{'B'};
+    position[0][5] = new bishop{'B'};
+    position[0][6] = new knight{'B'};
+    position[0][7] = new rook{'B'};
 
-// Change White pieces to row 7 (Rank 1)
-position[7][0] = new rook{'W'};
-position[7][1] = new knight{'W'};
-position[7][2] = new bishop{'W'};
-position[7][3] = new queen{'W'};
-position[7][4] = new king{'W'};
-position[7][5] = new bishop{'W'};
-position[7][6] = new knight{'W'};
-position[7][7] = new rook{'W'};
-
-
+    // Change White pieces to row 7 (Rank 1)
+    position[7][0] = new rook{'W'};
+    position[7][1] = new knight{'W'};
+    position[7][2] = new bishop{'W'};
+    position[7][3] = new queen{'W'};
+    position[7][4] = new king{'W'};
+    position[7][5] = new bishop{'W'};
+    position[7][6] = new knight{'W'};
+    position[7][7] = new rook{'W'};
 }
 
 board::~board()
@@ -65,8 +63,6 @@ void board::print_board()
         files_square[n] = "  ";
         files_square[n].push_back(' ');
         files_square[n].push_back(files[n]);
-        // files_square[n].push_back(' ');
-        
     }
     string divide_square{" ---"};
 
@@ -174,120 +170,160 @@ void board::make_move()
         frow = input_converter(input[1], 1);
         fcol = input_converter(input[0], 0);
 
-        if (position[irow][icol] != nullptr)
+        if (position[irow][icol] != nullptr) // Is there a piece there?
         {
-            if (position[irow][icol]->get_colour() == turncolour)
+            if (position[irow][icol]->get_colour() == turncolour) // Is it YOUR piece?
             {
-            if (position[frow][fcol] == nullptr || position[frow][fcol]->get_colour() != turncolour)     {
-                    if (position[irow][icol]->get_id() == 'K') {
-                        if (!position[irow][icol]->has_moved() && (fcol == 2 || fcol == 6)) {
+                if (position[frow][fcol] == nullptr || position[frow][fcol]->get_colour() != turncolour)
+                { // Can you land there?
+                    if (position[irow][icol]->get_id() == 'K')
+                    {
+                        if (!position[irow][icol]->has_moved() && (fcol == 2 || fcol == 6))
+                        {
                             // try castling
-                            if (castling(turncolour, fcol)) {
+                            if (castling(turncolour, fcol))
+                            {
                                 position[frow][fcol]->set_has_moved();
                                 break;
                             }
                         }
-                    }
-                    if (position[irow][icol]->is_move_allowed(position, irow, icol, frow, fcol)) {
-                        if (!will_king_check(irow, icol, frow, fcol, turncolour)) {
+                    } // Valid piece movement?
+                    if (position[irow][icol]->is_move_allowed(position, irow, icol, frow, fcol))
+                    { // King safe after move?
+                        if (!will_king_check(irow, icol, frow, fcol, turncolour))
+                        {
                             // move piece
-                            if (position[frow][fcol] != nullptr) {
-                                delete position[frow][fcol]; 
+                            if (position[frow][fcol] != nullptr)
+                            {
+                                delete position[frow][fcol]; // delete captured piece from memory
                             }
                             position[frow][fcol] = position[irow][icol];
                             position[irow][icol] = nullptr;
-                            if (position[frow][fcol]->get_id() == 'P') {
-                                if (frow == 0 || frow == 7) {
+                            if (position[frow][fcol]->get_id() == 'P')
+                            {
+                                if (frow == 0 || frow == 7)
+                                { // reached last rank
                                     pawn_promotion(frow, fcol);
                                 }
                             }
                             position[frow][fcol]->set_has_moved();
                             break;
-                        } else {
+                        }
+                        else
+                        {
                             print_board();
                             cerr << "\nInvalid move: King will be in chekc" << endl;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         print_board();
                         cerr << "\nInvalid move: piece movement not allowed" << endl;
                     }
-                } else {
+                }
+                else
+                {
                     print_board();
                     cerr << "\nInvalid move: cannot move to your own piece" << endl;
                 }
-            } else {
+            }
+            else
+            {
                 print_board();
                 cerr << "\nInvalid move: not your piece" << endl;
             }
-        } else {
+        }
+        else
+        {
             print_board();
             cerr << "\nInvalid move: there is no piece on that square" << endl;
         }
     }
 }
 
-void board :: input_checker(string& input)
+void board ::input_checker(string &input)
 {
-    while(true) {
-        cout<< "Coordinate = ";
+    while (true)
+    {
+        cout << "Coordinate = ";
         cin >> input;
-        if(input.length() != 2) {
+        if (input.length() != 2)
+        {
             print_board();
-            cerr<<"\nError : input must be made of two characters"<< endl;
-        } else if(isalpha(input[0]) && isdigit(input[1])) {
+            cerr << "\nError : input must be made of two characters" << endl;
+        }
+        else if (isalpha(input[0]) && isdigit(input[1]))
+        {
             int count1{0}, count2{0};
             for (int n = 0; n < 8; n++)
             {
-                if(input[0] == files[n]){
+                if (input[0] == files[n])
+                {
                     count1++;
                 }
-                if(input[1]-48 == ranks[n]){
+                if (input[1] - 48 == ranks[n])
+                {
                     count2++;
                 }
             }
-            if(count1+count2 != 2) {
+            if (count1 + count2 != 2)
+            {
                 print_board();
-                cerr<<"\nError: there is no square on the board" <<endl;
-            } else {
+                cerr << "\nError: there is no square on the board" << endl;
+            }
+            else
+            {
                 break;
             }
-        } else {
+        }
+        else
+        {
             print_board();
-            cerr<<"\nError: please input a valid position on the board" <<endl;
+            cerr << "\nError: please input a valid position on the board" << endl;
         }
     }
 }
 
 // convert (files x rank) user input to board coordinates
-int board::input_converter(char& i, int mode)
+int board::input_converter(char &i, int mode)
 {
-    switch(mode) {
-        case 0: {
-            char* file_ptr = find(begin(files),end(files), i);
-            int col = distance(files, file_ptr);
-            return col;
-        }
-        case 1: {
-            int* rank_ptr = find(begin(ranks), end(ranks), i-48);
-            int row = distance(ranks, rank_ptr);
-            return row;
-        }
-        default: {
-            return 0;
-        }
+    switch (mode)
+    {
+    case 0:
+    {
+        char *file_ptr = find(begin(files), end(files), i);
+        int col = distance(files, file_ptr);
+        return col;
+    }
+    case 1:
+    {
+        int *rank_ptr = find(begin(ranks), end(ranks), i - 48);
+        int row = distance(ranks, rank_ptr);
+        return row;
+    }
+    default:
+    {
+        return 0;
+    }
     }
 }
 
 // updates king coordinate
-void board:: find_kings(piece* temp[8][8])
+void board::find_kings(piece *temp[8][8])
 {
-    for( int i{0}; i<8; i++) {
-        for( int j{0}; j<8; j++) {
-            if(temp[i][j] != nullptr && temp[i][j]->get_id() == 'K') {
-                if(temp[i][j]->get_colour() == 'W') {
+    for (int i{0}; i < 8; i++)
+    {
+        for (int j{0}; j < 8; j++)
+        {
+            if (temp[i][j] != nullptr && temp[i][j]->get_id() == 'K')
+            {
+                if (temp[i][j]->get_colour() == 'W')
+                {
                     wking_row = i;
                     wking_col = j;
-                } else {
+                }
+                else
+                {
                     bking_row = i;
                     bking_col = j;
                 }
@@ -296,20 +332,24 @@ void board:: find_kings(piece* temp[8][8])
     }
 }
 
-
 // checks if any enemy piece can move (attack) to king of given colour
-bool board::is_king_check(piece* temp[8][8], char& king_colour)
+bool board::is_king_check(piece *temp[8][8], char &king_colour)
 {
     find_kings(temp);
     int king_row, king_col;
     king_row = (king_colour == 'W') ? wking_row : bking_row;
     king_col = (king_colour == 'W') ? wking_col : bking_col;
-    for(int i{0}; i<8; i++){
-        for(int j{0}; j<8; j++){
-            if(temp[i][j]!= nullptr) {
-                if(temp[i][j]->get_colour() != king_colour) {
-                    if(temp[i][j]->is_move_allowed(temp, i, j, king_row, king_col)) {
-                        cout<<" King is checked. "<<endl;
+    for (int i{0}; i < 8; i++)
+    {
+        for (int j{0}; j < 8; j++)
+        {
+            if (temp[i][j] != nullptr)
+            {
+                if (temp[i][j]->get_colour() != king_colour)
+                {
+                    if (temp[i][j]->is_move_allowed(temp, i, j, king_row, king_col))
+                    {
+                        cout << " King is checked. " << endl;
                         return true;
                     }
                 }
@@ -320,28 +360,30 @@ bool board::is_king_check(piece* temp[8][8], char& king_colour)
 }
 
 // creates a virtual board, makes a virtual move and checks if king is in check
-// in that hypothetical situation
-
 bool board::will_king_check(int irow, int icol, int frow, int fcol, char king_colour)
 {
-    piece* virtual_board[8][8];
-    for(int i{0}; i<8; i++) {
-        for(int j{0}; j<8; j++){
+    piece *virtual_board[8][8];
+    for (int i{0}; i < 8; i++)
+    {
+        for (int j{0}; j < 8; j++)
+        {
             virtual_board[i][j] = position[i][j];
         }
     }
     // make virtual move
     virtual_board[frow][fcol] = virtual_board[irow][icol];
     virtual_board[irow][icol] = nullptr;
-    if(is_king_check(virtual_board, king_colour)) {
-         
+    if (is_king_check(virtual_board, king_colour))
+    {
+
         return true;
-    } else {
-        
+    }
+    else
+    {
+
         return false;
     }
     // delete virtual board
-    
 }
 
 // searches all 8 squares arounf the king position and checks which move are legal
@@ -351,53 +393,70 @@ bool board::can_king_move(char king_colour)
     king_row = (king_colour == 'W') ? wking_row : bking_row;
     king_col = (king_colour == 'W') ? wking_col : bking_col;
     // map to store squares around the king
-    std::map<int,std::map<int,int>> map;
-    std::map<int,std::map<int,int>>::iterator ptr1;
-    std::map<int,int>::iterator ptr2;
-    for (int n{0}; n < 8; n++) {
+    std::map<int, std::map<int, int>> map;
+    std::map<int, std::map<int, int>>::iterator ptr1;
+    std::map<int, int>::iterator ptr2;
+    for (int n{0}; n < 8; n++)
+    {
         map.insert(std::make_pair(n, std::map<int, int>()));
     }
     // check each square around the king
-    map[0].insert(std::make_pair(king_row-1, king_col-1));
-    map[1].insert(std::make_pair(king_row-1, king_col));
-    map[2].insert(std::make_pair(king_row-1, king_col+1));
-    map[3].insert(std::make_pair(king_row, king_col-1));
-    map[4].insert(std::make_pair(king_row, king_col+1));
-    map[5].insert(std::make_pair(king_row+1, king_col-1));
-    map[6].insert(std::make_pair(king_row+1, king_col));
-    map[7].insert(std::make_pair(king_row+1, king_col+1));
+    map[0].insert(std::make_pair(king_row - 1, king_col - 1));
+    map[1].insert(std::make_pair(king_row - 1, king_col));
+    map[2].insert(std::make_pair(king_row - 1, king_col + 1));
+    map[3].insert(std::make_pair(king_row, king_col - 1));
+    map[4].insert(std::make_pair(king_row, king_col + 1));
+    map[5].insert(std::make_pair(king_row + 1, king_col - 1));
+    map[6].insert(std::make_pair(king_row + 1, king_col));
+    map[7].insert(std::make_pair(king_row + 1, king_col + 1));
 
     int allowed_square{0};
-    for (ptr1 = map.begin(); ptr1 != map.end(); ptr1++) {
-        for (ptr2 = ptr1->second.begin(); ptr2 != ptr1->second.end(); ptr2++) {
-            if (ptr2->first >= 0 && ptr2->first < 8 && ptr2->second >= 0 && ptr2->second < 8) {
-                if(position[ptr2->first][ptr2->second] == nullptr || 
-    position[ptr2->first][ptr2->second]->get_colour() != king_colour) {
-                    if (!will_king_check(king_row, king_col, ptr2->first, ptr2->second, king_colour)) {
+    for (ptr1 = map.begin(); ptr1 != map.end(); ptr1++)
+    {
+        for (ptr2 = ptr1->second.begin(); ptr2 != ptr1->second.end(); ptr2++)
+        {
+            if (ptr2->first >= 0 && ptr2->first < 8 && ptr2->second >= 0 && ptr2->second < 8)
+            {
+                if (position[ptr2->first][ptr2->second] == nullptr ||
+                    position[ptr2->first][ptr2->second]->get_colour() != king_colour)
+                {
+                    if (!will_king_check(king_row, king_col, ptr2->first, ptr2->second, king_colour))
+                    {
                         allowed_square++;
                     }
                 }
             }
         }
     }
-    if (allowed_square != 0) {
+    if (allowed_square != 0)
+    {
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
 // checks if any piece other than the king can move
 bool board::can_any_move()
 {
-    for(int i{0}; i<8; i++){
-        for(int j{0}; j<8; j++) {
-            if(position[i][j] != nullptr && position[i][j]->get_colour() == turncolour && position[i][j]->get_id() != 'K') {
-                for(int x{0}; x<8; x++){
-                    for(int y{0}; y<8; y++) {
-                        if (position[x][y] == nullptr || position[x][y]->get_colour() != turncolour) {
-                            if(position[i][j]->is_move_allowed(position, i, j, x, y)) {
-                                if (!will_king_check(i, j, x, y, turncolour)) {
-                                    return true; 
+    for (int i{0}; i < 8; i++)
+    {
+        for (int j{0}; j < 8; j++)
+        {
+            if (position[i][j] != nullptr && position[i][j]->get_colour() == turncolour && position[i][j]->get_id() != 'K')
+            {
+                for (int x{0}; x < 8; x++)
+                {
+                    for (int y{0}; y < 8; y++)
+                    {
+                        if (position[x][y] == nullptr || position[x][y]->get_colour() != turncolour)
+                        {
+                            if (position[i][j]->is_move_allowed(position, i, j, x, y))
+                            {
+                                if (!will_king_check(i, j, x, y, turncolour))
+                                {
+                                    return true;
                                 }
                             }
                         }
@@ -410,18 +469,24 @@ bool board::can_any_move()
 }
 bool board::is_checkmate()
 {
-    if(is_king_check(position, turncolour) && !can_king_move(turncolour) && !can_any_move()) {
+    if (is_king_check(position, turncolour) && !can_king_move(turncolour) && !can_any_move())
+    {
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
 
 bool board::is_stalemate()
 {
-    if(!is_king_check(position, turncolour) && !can_king_move(turncolour) &&!can_any_move()) {
+    if (!is_king_check(position, turncolour) && !can_king_move(turncolour) && !can_any_move())
+    {
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
@@ -429,79 +494,109 @@ bool board::is_stalemate()
 void board::pawn_promotion(int row, int col)
 {
     string input;
-    cout<<"\nPlease choose a piece to prmte the pawn to (R, N, B or Q): ";
-    while(cin>>input) {
-        delete position[row][col]; 
+    cout << "\nPlease choose a piece to prmte the pawn to (R, N, B or Q): ";
+    while (cin >> input)
+    {
+        delete position[row][col];
 
-        if(input == "Q") {
-            position[row][col] = new queen(turncolour);
-            break;}
-        if(input == "Q") {
+        if (input == "Q")
+        {
             position[row][col] = new queen(turncolour);
             break;
-        } else if(input == "N") {
+        }
+        if (input == "Q")
+        {
+            position[row][col] = new queen(turncolour);
+            break;
+        }
+        else if (input == "N")
+        {
             position[row][col] = new knight{turncolour};
             break;
-        } else if(input == "B") {
+        }
+        else if (input == "B")
+        {
             position[row][col] = new bishop{turncolour};
             break;
-        } else if(input == "R") {
+        }
+        else if (input == "R")
+        {
             position[row][col] = new rook{turncolour};
             break;
-        } else {
-            cerr<<"\n Invalid input : please input either R, B, N or Q";
+        }
+        else
+        {
+            cerr << "\n Invalid input : please input either R, B, N or Q";
         }
     }
-    cout<<"\n";
+    cout << "\n";
 }
 
 bool board::castling(char king_colour, int fcol)
 {
-    if (is_king_check(position, king_colour)) {
-        return false; 
+    if (is_king_check(position, king_colour))
+    {
+        return false;
     }
     int king_row, king_col;
     king_row = (king_colour == 'W') ? wking_row : bking_row;
     king_col = (king_colour == 'W') ? wking_col : bking_col;
 
     int ok_squares{0};
-    if(fcol == 2) {
-        if(position[king_row][0]->get_id()== 'R' && !position[king_row][0]->has_moved()) {
-            for(int n{0}; n<3; n++) {
-                if(position[king_row][king_col-(n+1)] == nullptr && !will_king_check(king_row, king_col, king_row, king_col-n, king_colour)) {
+    if (fcol == 2){
+        if (position[king_row][0] != nullptr &&
+            position[king_row][0]->get_id() == 'R' &&
+            !position[king_row][0]->has_moved()){
+            for (int n{0}; n < 3; n++){
+                if (position[king_row][king_col - (n + 1)] == nullptr && 
+                !will_king_check(king_row, king_col, king_row, king_col - n, king_colour)){
                     ok_squares++;
                 }
             }
         }
     }
-    else {
-        if(position[king_row][7]->get_id() == 'R' && !position[king_row][7]->has_moved()) {
-            for(int n{0}; n<3; n++) {
-                if(n>0) {
-                    if(position[king_row][king_col+n] == nullptr && 
-                        !will_king_check(king_row, king_col, king_row, king_col+n, king_colour)) {
+    else
+    {
+        if (position[king_row][7]->get_id() == 'R' && !position[king_row][7]->has_moved())
+        {
+            for (int n{0}; n < 3; n++)
+            {
+                if (n > 0)
+                {
+                    if (position[king_row][king_col + n] == nullptr &&
+                        !will_king_check(king_row, king_col, king_row, king_col + n, king_colour))
+                    {
                         ok_squares++;
                     }
-                } else {
-                    if(!will_king_check(king_row, king_col, king_row, king_col+n, king_colour)) {
+                }
+                else
+                {
+                    if (!will_king_check(king_row, king_col, king_row, king_col + n, king_colour))
+                    {
                         ok_squares++;
                     }
                 }
             }
         }
     }
-    if (ok_squares == 3) {  
+    if (ok_squares == 3)
+    {
         position[king_row][fcol] = position[king_row][king_col];
         position[king_row][king_col] = nullptr;
-        if (fcol == 2) {
-            position[king_row][fcol+1] = position[king_row][0];
+        if (fcol == 2)
+        {
+            position[king_row][fcol + 1] = position[king_row][0];
             position[king_row][0] = nullptr;
-        } else {
-            position[king_row][fcol-1] = position[king_row][7];
+        }
+        else
+        {
+            position[king_row][fcol - 1] = position[king_row][7];
             position[king_row][7] = nullptr;
         }
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }

@@ -1,4 +1,4 @@
- #include "board.h"
+#include "board.h"
 #include "utils.h" // Make sure you have utils.cpp for keep_alive()!
 
 using namespace chess;
